@@ -163,14 +163,130 @@ void mainWindow() {
 
 
 //task member 3
+
 void transfer() {
-   // 1. اختيار الحساب المرسل
-   // 2. إدخال رقم هاتف المستقبل والتأكد من وجوده 
-   // 3. التأكد من كفاية الرصيد 
-   // 4. الخصم والإضافة وتحديث المصفوفة
+    if (currentUserIndex == -1) // check to see if the user exists
+    {
+        cout << "You need to login first. \n";
+        return;
+    }
+
+    int senderAccount; // the sender's account
+    string receiverNum; // the phone number of the user receiving the amount
+    double transferAmount; // money 
+    int receiverUserIndex = -1, receiverAccIndex = -1; // index of the receiver
+
+    cout << "Choose an account for this transaction: \n"; // which account do u want to transfer from
+
+    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
+        cout << "[" << i + 1 << "] "
+            << users[currentUserIndex].userAccounts[i].cardNo << " || "
+            << users[currentUserIndex].userAccounts[i].bankName << endl
+            << "Balance: "
+            << users[currentUserIndex].userAccounts[i].balance << endl;
+    }
+
+    cin >> senderAccount;
+
+    if (senderAccount < 1 || senderAccount > users[currentUserIndex].accountsCount) // check if user is entering an account that isn't registered. or larger than accountsCount
+        cout << "Invalid account choice. \n";
+
+    // receiver's phone number choice
+    cout << "Enter the receiver's phone number: ";
+    cin >> receiverNum;
+
+    for (int i = 0; i < userCount; i++) { // try to find the receiver 
+        if (users[i].phone == receiverNum) {
+            receiverUserIndex = i;
+            break;
+        }
+    }
+
+    // errors to show if there are no receivers. or the receiver doesnt have an acc
+    if (receiverUserIndex == -1)
+        cout << "Can't find receiver. \n";
+
+
+    if (users[currentUserIndex].accountsCount == 0) {
+        cout << "This user doesn't have a bank account.";
+        return;
+    }
+
+    // choose receiver account
+    cout << "Choose the receiver's account: \n";
+
+    for (int i = 0; i < users[receiverUserIndex].accountsCount; i++) {
+        cout << "[" << i + 1 << "]"
+            << users[receiverUserIndex].userAccounts[i].bankName << endl;
+    }
+
+    cin >> receiverAccIndex;
+
+    if (receiverAccIndex < 1 || receiverAccIndex > users[receiverUserIndex].accountsCount) {
+        cout << "Invalid receiver account. \n";
+        return;
+    }
+
+    // transfer process
+    cout << "Enter amount to send: \n";
+    cin >> transferAmount;
+
+    if (transferAmount <= 0) {
+        cout << "Invalid amount. \n";
+        return;
+    }
+
+    if (users[currentUserIndex].userAccounts[senderAccount].balance < transferAmount) {
+        cout << "Insufficient balance. \n";
+        return;
+    }
+
+    users[currentUserIndex].userAccounts[senderAccount].balance -= transferAmount;
+
+    users[receiverUserIndex].userAccounts[receiverAccIndex].balance += transferAmount;
+
+    cout << "Transaction was successful. \n";
+
+    // log the transfer
+
+    transactions[transactionCount].fromPhone = users[currentUserIndex].phone;
+    transactions[transactionCount].toPhone = users[receiverUserIndex].phone;
+    transactionCount++;
 }
 void checkBalance() {
-   // عرض رصيد حساب معين يختاره المستخدم 
+    // errors
+    if (currentUserIndex == -1) {
+        cout << "You need to login first. \n";
+        return;
+    }
+
+    if (users[currentUserIndex].accountsCount == 0) {
+        cout << "No bank accounts found. \n";
+        return;
+    }
+
+    // choose which account to check
+    cout << "Your bank accounts: \n";
+
+    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
+        cout << "[" << i + 1 << "] "
+            << users[currentUserIndex].userAccounts[i].cardNo << " || "
+            << users[currentUserIndex].userAccounts[i].bankName << endl;
+    }
+
+    int choice;
+    cout << "Choose account number: ";
+    cin >> choice;
+    choice--;
+
+    // invalid choice error
+    if (choice < 0 || choice >= users[currentUserIndex].accountsCount) {
+        cout << "Invalid choice. \n";
+        return;
+    }
+
+    // check balance 
+    cout << "Your balance is: " << users[currentUserIndex].userAccounts[choice].balance << endl;
 }
 
 // task member 4

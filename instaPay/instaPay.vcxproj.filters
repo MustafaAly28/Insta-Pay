@@ -32,5 +32,8 @@
     <ClInclude Include="Services.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Validations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

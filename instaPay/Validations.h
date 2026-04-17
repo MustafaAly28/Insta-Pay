@@ -7,7 +7,7 @@ namespace Validation
 {
 	static string ConvertToLowerCase(const string &Text)
 	{
-		string AfterConvertion = ""; /* */
+		string AfterConvertion = "";
 
 		for (int Char = 0; Char < Text.length(); Char++)
 		{

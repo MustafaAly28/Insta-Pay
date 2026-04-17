@@ -76,7 +76,7 @@ namespace File
 
 	StAccount GetAccountFromLine(string LineOfDataAccount)
 	{
-		string AccountInfo[6] = {};
+		string AccountInfo[7] = {};
 		StAccount Account;
 
 		SplitTextToData(LineOfDataAccount, AccountInfo, SepratorAccountData);
@@ -87,6 +87,7 @@ namespace File
 		Account.CVVCode = AccountInfo[3];
 		Account.ExpirationDate = AccountInfo[4];
 		Account.Balance = stod(AccountInfo[5]);
+		Account.PIN = AccountInfo[5];
 
 		return Account;
 	}
@@ -132,6 +133,7 @@ namespace File
 		string Line = "";
 
 		Line += User.Account.CardNumber + "$";
+		Line += User.Account.PIN + "$";
 		Line += User.Account.HolderName + "$";
 		Line += User.Account.BankName + "$";
 		Line += User.Account.CVVCode + "$";

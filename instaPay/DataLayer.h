@@ -27,6 +27,7 @@ struct StAccount
 	string ExpirationDate;
 	string BankName;
 	string CardNumber;
+	string PIN;
 	string HolderName;
 };
 

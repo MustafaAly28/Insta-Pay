@@ -8,7 +8,7 @@ using namespace std;
 	(Street/#/City/#/HomeNumber)
 
 	File (Account  Data) => Seprator Or Delimeter Is $
-	(CardNumber$HolderName$BankName$CVVCode$ExpirationDate$Balance)
+	(CardNumber$PINNumber$HolderName$BankName$CVVCode$ExpirationDate$Balance)
 
 	File (Personal  Data) => Seprator Or Delimeter Is #
 	(UserName#Id#Password#Phone#Email)

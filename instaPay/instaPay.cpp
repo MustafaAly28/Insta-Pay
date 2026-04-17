@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS /* To Disable Errors When Operating Date , Do Not Omit This */
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -5,429 +6,619 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
-
+#include"Services.h"
+#include"FilesLayer.h"
 using namespace std;
 
-struct Transaction {
-   string fromPhone;    // رقم هاتف المرسل 
-   string toPhone;      // رقم هاتف المستقبل 
-   double amount;       // المبلغ المحول 
-};
-
-struct Account {
-   string cardNo;          // رقم الكارت 
-   string holderName;      // اسم صاحب الحساب 
-   int cvvCode;            // كود الـ CVV 
-   string expirationDate;  // تاريخ الانتهاء 
-   string bankName;        // اسم البنك 
-   double balance;         // الرصيد هيبقى قيمة عشوائية من اول 0 لغاية 1000
-};
-
-struct User {
-   int id;                      // المعرف الفريد للمستخدم 
-   string userName;             // اسم المستخدم 
-   string password;             // كلمة المرور 
-   string email;                // البريد الإلكتروني 
-   string address;              // العنوان 
-   string phone;                // رقم التليفون
-   Account userAccounts[3];     // كل مستخدم ليه بحد اقصي 3 حسابات
-   int accountsCount = 0;           // عدد الحسابات المضافة فعلياً
-};
-const int numUsers = 10;
-User users[numUsers];
-Transaction transactions[numUsers];
-int userCount = 0;
-int transactionCount = 0;
-int currentUserIndex = -1;
-void login();
-void signIn();
-void mainWindow();
-void transfer();
-void checkBalance();
-void addNewAccount();
-void checkTransactions();
-void saveToFile();
-void loadFromFile();
-void userInfo();
-void donate();
-//task member 1
-void signIn() {
-   string confirmPassword;
-   cout << "\t\t\t\t============================================\n";
-   cout << "\t\t\t\t                  SIGN IN\n";
-   cout << "\t\t\t\t============================================\n";
-   
-//2- اليوزر هيكتب الايميل بتاعو 
-   cout << "Enter your Email : ";
-   cin >> users[userCount].email;
-//3- اليوزر هيسجل رقم الفون بتاعو
-   cout << "Enter Phone number : ";
-   cin >> users[userCount].phone;
-//4- اليوزر هيكتب العنوان بتاعو 
-   cout << "Enter your address : ";
-   getline(cin >> ws, users[userCount].address);
-//5- اليوزر هيكتب ال username 
-   cout << "Enter your username : ";
-   getline(cin >> ws, users[userCount].userName);
-//6- اليوزر هيعمل الباسوورد بتاعو
-   cout << "Enter a new password : ";
-   cin >> users[userCount].password;
-
-//7- هتعمل كونفيرم للباسوورد ولو الكونفيرم باسوورد مش نفس الباسوورد هتطلع رسالة بتقول ان الكونفيرم باسوورد not match
-   
-   do
-   {
-   cout << "Confirm Password : ";
-   cin >> confirmPassword;
-   if (confirmPassword != users[userCount].password)
-   {
-       cout << "Error!\n";
-       
-   }
-   
-
-   } while (confirmPassword != users[userCount].password);
-   userCount++;
-   cout << "----------------------------------------------------------------------------------------------------------------------\n";
-   login();
-   
-};
-void login() {
-   string phoneNum;
-   string pass;
-   cout << "\t\t\t\t============================================\n";
-   cout << "\t\t\t\t                  LOGIN\n";
-   cout << "\t\t\t\t============================================\n";
-   //1- اليوزر هيسجل رقم التليفون بتاعو
-   cout << "Enter your phone number : ";
-   cin >> phoneNum;
-   //2- اليوزر هيكتب كلمة السر بتاعتو
-   cout << "Enter your password : ";
-   cin >> pass;
-   //لو في حاجة غلط سواء رقم التليفون مش موجود قبل كده اصلا او كلمة السر غلط
-   bool found = false;
-   for (int i = 0; i < userCount; i++)
-   {
-       if (phoneNum == users[i].phone && pass == users[i].password) {
-           found = true;
-           currentUserIndex = i;
-           break;
-
-       }
-   }
-   if (found)
-   {
-       cout << "login successfully." << endl;
-       cout << "-----------------------------------------------------------------------------------------------------------------\n";
-       mainWindow();
-   }
-   else
-   {
-       cout << "The phone number or password is incorrect!" << endl;
-       cout << "-----------------------------------------------------------------------------------------------------------------\n";
-       signIn();
-   }
-   // هتعرض رسالة تعرفو ان في حاجة غلط 
-   
-};
-
-
-//task member 2
-void mainWindow() {
-   int choise;
-   cout << "\t\t\t\t============================================\n";
-   cout << "\t\t\t\t                  MAIN WINDOW\n";
-   cout << "\t\t\t\t============================================\n";
-   if (currentUserIndex == -1)
-   {
-       cout << "No accounts has sign in." << endl;
-   }
-   
-   else
-   {
-       cout << "[1] Check Balance" << endl;
-       cout << "[2] add new Account" << endl;
-       cout << "[3] Transfer\n";
-       cout << "[4] Transactions\n";
-       cout << "[5] Info\n";
-       cout << "[6] donate\n";
-       cout << "Enter your choise from (1-6) : ";
-       cin >> choise;
-   }
-   
-   // دي الصفحة الرئيسية اللي هتعرضلو فيها كل حاجة ممكن هو يختارها
-   // زي مثلا (i.e. Check Balance, add new Account, Transfer, etc.)
-};
-
-
-
-
-//task member 3
-
-void transfer() {
-    if (currentUserIndex == -1) // check to see if the user exists
-    {
-        cout << "You need to login first. \n";
-        return;
-    }
-
-    int senderAccount; // the sender's account
-    string receiverNum; // the phone number of the user receiving the amount
-    double transferAmount; // money 
-    int receiverUserIndex = -1, receiverAccIndex = -1; // index of the receiver
-
-    cout << "Choose an account for this transaction: \n"; // which account do u want to transfer from
-
-    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
-        cout << "[" << i + 1 << "] "
-            << users[currentUserIndex].userAccounts[i].cardNo << " || "
-            << users[currentUserIndex].userAccounts[i].bankName << endl
-            << "Balance: "
-            << users[currentUserIndex].userAccounts[i].balance << endl;
-    }
-
-    cin >> senderAccount;
-
-    if (senderAccount < 1 || senderAccount > users[currentUserIndex].accountsCount) // check if user is entering an account that isn't registered. or larger than accountsCount
-        cout << "Invalid account choice. \n";
-
-    // receiver's phone number choice
-    cout << "Enter the receiver's phone number: ";
-    cin >> receiverNum;
-
-    for (int i = 0; i < userCount; i++) { // try to find the receiver 
-        if (users[i].phone == receiverNum) {
-            receiverUserIndex = i;
-            break;
-        }
-    }
-
-    // errors to show if there are no receivers. or the receiver doesnt have an acc
-    if (receiverUserIndex == -1)
-        cout << "Can't find receiver. \n";
-
-
-    if (users[currentUserIndex].accountsCount == 0) {
-        cout << "This user doesn't have a bank account.";
-        return;
-    }
-
-    // choose receiver account
-    cout << "Choose the receiver's account: \n";
-
-    for (int i = 0; i < users[receiverUserIndex].accountsCount; i++) {
-        cout << "[" << i + 1 << "]"
-            << users[receiverUserIndex].userAccounts[i].bankName << endl;
-    }
-
-    cin >> receiverAccIndex;
-
-    if (receiverAccIndex < 1 || receiverAccIndex > users[receiverUserIndex].accountsCount) {
-        cout << "Invalid receiver account. \n";
-        return;
-    }
-
-    // transfer process
-    cout << "Enter amount to send: \n";
-    cin >> transferAmount;
-
-    if (transferAmount <= 0) {
-        cout << "Invalid amount. \n";
-        return;
-    }
-
-    if (users[currentUserIndex].userAccounts[senderAccount].balance < transferAmount) {
-        cout << "Insufficient balance. \n";
-        return;
-    }
-
-    users[currentUserIndex].userAccounts[senderAccount].balance -= transferAmount;
-
-    users[receiverUserIndex].userAccounts[receiverAccIndex].balance += transferAmount;
-
-    cout << "Transaction was successful. \n";
-
-    // log the transfer
-
-    transactions[transactionCount].fromPhone = users[currentUserIndex].phone;
-    transactions[transactionCount].toPhone = users[receiverUserIndex].phone;
-    transactionCount++;
-}
-void checkBalance() {
-    // errors
-    if (currentUserIndex == -1) {
-        cout << "You need to login first. \n";
-        return;
-    }
-
-    if (users[currentUserIndex].accountsCount == 0) {
-        cout << "No bank accounts found. \n";
-        return;
-    }
-
-    // choose which account to check
-    cout << "Your bank accounts: \n";
-
-    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
-        cout << "[" << i + 1 << "] "
-            << users[currentUserIndex].userAccounts[i].cardNo << " || "
-            << users[currentUserIndex].userAccounts[i].bankName << endl;
-    }
-
-    int choice;
-    cout << "Choose account number: ";
-    cin >> choice;
-    choice--;
-
-    // invalid choice error
-    if (choice < 0 || choice >= users[currentUserIndex].accountsCount) {
-        cout << "Invalid choice. \n";
-        return;
-    }
-
-    // check balance 
-    cout << "Your balance is: " << users[currentUserIndex].userAccounts[choice].balance << endl;
-}
-
-// task member 4
-void addNewAccount() {
-   // إضافة حساب بنكي جديد للمستخدم الحالي 
-   // يعني المستخدم ممكن يضيف حساب جديد بنفس رقم التليفون
-   //The cardNo, HolderName, CVV_Code, expireation Date and BankName are added manually by the user, the balance is set to random value starting from 1000.
-}
-
-void checkTransactions() {
-   // عرض العمليات التي تخص المستخدم الحالي فقط 
-}
-
-
-// task member 5
-void saveToFile() {
-   // حفظ كل المصفوفات في ملفات .txt 
-}
-
-void loadFromFile() {
-   // تحميل البيانات من الملفات للمصفوفات عند التشغيل 
-}
-
-// task member 6
-void userInfo() {
-   // هتعرض كل المعلومات اللي تخص اليوزر
-}
-
-void donate() {
-
-}
-int main() {
-   login();
-   mainWindow();
-
-
-}
-
-// #include<iostream>
-// #include"FilesLayer.h"
-// #include"Services.h"
-
-// using namespace Print;
-// using namespace std;
-// using namespace File;
-
-// struct Transaction {
-//     string FromPhone;    // رقم هاتف المرسل 
-//     string ToPhone;      // رقم هاتف المستقبل 
-//     double Amount;       // المبلغ المحول 
-// };
-
-// struct Account {
-//     string CardNo;          // رقم الكارت 
-//     string HolderName;      // اسم صاحب الحساب 
-//     int CvvCode;            // كود الـ CVV 
-//     string ExpirationDate;  // تاريخ الانتهاء 
-//     string BankName;        // اسم البنك 
-//     double Balance;         // الرصيد هيبقى قيمة عشوائية من اول 0 لغاية 1000
-// };
-
-// struct User {
-//     int Id;                      // المعرف الفريد للمستخدم 
-//     string UserName;             // اسم المستخدم 
-//     string Password;             // كلمة المرور 
-//     string Email;                // البريد الإلكتروني 
-//     string Address;              // العنوان 
-//     string Phone;                // رقم التليفون
-//     Account UserAccounts[3];     // كل مستخدم ليه بحد اقصي 3 حسابات
-//     int AccountsCount = 0;           // عدد الحسابات المضافة فعلياً
-// };
-// const int NumUsers = 10;
-// User Users[NumUsers];
-// Transaction transactions[NumUsers];
-// int UserCount = 0;
-// int TransactionCount = 0;
-// int TurrentUserIndex = -1;
-// void Login();
-// void SignIn();
-// void MainWindow();
-// void Transfer();
-// void CheckBalance();
-// void AddNewAccount();
-// void CheckTransactions();
-// void SaveToFile();
-// void LoadFromFile();
-// void UserInfo();
-// void Donate();
-// //task member 1
-// void SignIn() {
-    
-// };
-// void Login() {
-
-// };
-
-
-// //task member 2
-// void MainWindow() {
-
-// };
-
-
-
-
-// //task member 3
-// void Transfer() {
-  
-// }
-// void CheckBalance() {
-   
-// }
-
-// // task member 4
-// void AddNewAccount() {
-    
-// }
-
-// void CheckTransactions() {
-    
-// }
-
-
-// // task member 5
-// void SaveToFile() {
-    
-// }
-
-// void LoadFromFile() {
-    
-// }
-
-// // task member 6
-// void UserInfo() {
-    
-// }
-
-// void Donate() {
-
-// }
-// int main() {
-    
-// }
+//struct Transaction {
+//   string fromPhone;    // رقم هاتف المرسل 
+//   string toPhone;      // رقم هاتف المستقبل 
+//   double amount;       // المبلغ المحول 
+//};
+//
+//struct Account {
+//   string cardNo;          // رقم الكارت 
+//   string holderName;      // اسم صاحب الحساب 
+//   int cvvCode;            // كود الـ CVV 
+//   string expirationDate;  // تاريخ الانتهاء 
+//   string bankName;        // اسم البنك 
+//   double balance;         // الرصيد هيبقى قيمة عشوائية من اول 0 لغاية 1000
+//};
+//
+//struct User {
+//   int id;                      // المعرف الفريد للمستخدم 
+//   string userName;             // اسم المستخدم 
+//   string password;             // كلمة المرور 
+//   string email;                // البريد الإلكتروني 
+//   string address;              // العنوان 
+//   string phone;                // رقم التليفون
+//   Account userAccounts[3];     // كل مستخدم ليه بحد اقصي 3 حسابات
+//   int accountsCount = 0;           // عدد الحسابات المضافة فعلياً
+//};
+//const int numUsers = 10;
+//User users[numUsers];
+//Transaction transactions[numUsers];
+//int userCount = 0;
+//int transactionCount = 0;
+//int currentUserIndex = -1;
+//void login();
+//void signIn();
+//void mainWindow();
+//void transfer();
+//void checkBalance();
+//void addNewAccount();
+//void checkTransactions();
+//void saveToFile();
+//void loadFromFile();
+//void userInfo();
+//void donate();
+////task member 1
+//void signIn() {
+//   string confirmPassword;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  SIGN IN\n";
+//   cout << "\t\t\t\t============================================\n";
+//   
+////2- اليوزر هيكتب الايميل بتاعو 
+//   cout << "Enter your Email : ";
+//   cin >> users[userCount].email;
+////3- اليوزر هيسجل رقم الفون بتاعو
+//   cout << "Enter Phone number : ";
+//   cin >> users[userCount].phone;
+////4- اليوزر هيكتب العنوان بتاعو 
+//   cout << "Enter your address : ";
+//   getline(cin >> ws, users[userCount].address);
+////5- اليوزر هيكتب ال username 
+//   cout << "Enter your username : ";
+//   getline(cin >> ws, users[userCount].userName);
+////6- اليوزر هيعمل الباسوورد بتاعو
+//   cout << "Enter a new password : ";
+//   cin >> users[userCount].password;
+//
+////7- هتعمل كونفيرم للباسوورد ولو الكونفيرم باسوورد مش نفس الباسوورد هتطلع رسالة بتقول ان الكونفيرم باسوورد not match
+//   
+//   do
+//   {
+//   cout << "Confirm Password : ";
+//   cin >> confirmPassword;
+//   if (confirmPassword != users[userCount].password)
+//   {
+//       cout << "Error!\n";
+//       
+//   }
+//   
+//
+//   } while (confirmPassword != users[userCount].password);
+//   userCount++;
+//   cout << "----------------------------------------------------------------------------------------------------------------------\n";
+//   login();
+//   
+//};
+//void login() {
+//   string phoneNum;
+//   string pass;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  LOGIN\n";
+//   cout << "\t\t\t\t============================================\n";
+//   //1- اليوزر هيسجل رقم التليفون بتاعو
+//   cout << "Enter your phone number : ";
+//   cin >> phoneNum;
+//   //2- اليوزر هيكتب كلمة السر بتاعتو
+//   cout << "Enter your password : ";
+//   cin >> pass;
+//   //لو في حاجة غلط سواء رقم التليفون مش موجود قبل كده اصلا او كلمة السر غلط
+//   bool found = false;
+//   for (int i = 0; i < userCount; i++)
+//   {
+//       if (phoneNum == users[i].phone && pass == users[i].password) {
+//           found = true;
+//           currentUserIndex = i;
+//           break;
+//
+//       }
+//   }
+//   if (found)
+//   {
+//       cout << "login successfully." << endl;
+//       cout << "-----------------------------------------------------------------------------------------------------------------\n";
+//       mainWindow();
+//   }
+//   else
+//   {
+//       cout << "The phone number or password is incorrect!" << endl;
+//       cout << "-----------------------------------------------------------------------------------------------------------------\n";
+//       signIn();
+//   }
+//   // هتعرض رسالة تعرفو ان في حاجة غلط 
+//   
+//};
+//
+//
+////task member 2
+//void mainWindow() {
+//   int choise;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  MAIN WINDOW\n";
+//   cout << "\t\t\t\t============================================\n";
+//   if (currentUserIndex == -1)
+//   {
+//       cout << "No accounts has sign in." << endl;
+//   }
+//   
+//   else
+//   {
+//       cout << "[1] Check Balance" << endl;
+//       cout << "[2] add new Account" << endl;
+//       cout << "[3] Transfer\n";
+//       cout << "[4] Transactions\n";
+//       cout << "[5] Info\n";
+//       cout << "[6] donate\n";
+//       cout << "Enter your choise from (1-6) : ";
+//       cin >> choise;
+//   }
+//   
+//   // دي الصفحة الرئيسية اللي هتعرضلو فيها كل حاجة ممكن هو يختارها
+//   // زي مثلا (i.e. Check Balance, add new Account, Transfer, etc.)
+//};
+//
+//
+//
+//
+////task member 3
+//void transfer() {
+//   // 1. اختيار الحساب المرسل
+//   // 2. إدخال رقم هاتف المستقبل والتأكد من وجوده 
+//   // 3. التأكد من كفاية الرصيد 
+//   // 4. الخصم والإضافة وتحديث المصفوفة
+//}
+//void checkBalance() {
+//   // عرض رصيد حساب معين يختاره المستخدم 
+//}
+//
+//// task member 4
+//void addNewAccount() {
+//   // إضافة حساب بنكي جديد للمستخدم الحالي 
+//   // يعني المستخدم ممكن يضيف حساب جديد بنفس رقم التليفون
+//   //The cardNo, HolderName, CVV_Code, expireation Date and BankName are added manually by the user, the balance is set to random value starting from 1000.
+//}
+//
+//void checkTransactions() {
+//   // عرض العمليات التي تخص المستخدم الحالي فقط 
+//}
+//
+//
+//// task member 5
+//void saveToFile() {
+//   // حفظ كل المصفوفات في ملفات .txt 
+//}
+//
+//void loadFromFile() {
+//   // تحميل البيانات من الملفات للمصفوفات عند التشغيل 
+//}
+//
+//// task member 6
+//void userInfo() {
+//   // هتعرض كل المعلومات اللي تخص اليوزر
+//}
+//
+//void donate() {
+//
+//}
+//
+//struct Account {
+//   string cardNo;          // رقم الكارت 
+//   string holderName;      // اسم صاحب الحساب 
+//   int cvvCode;            // كود الـ CVV 
+//   string expirationDate;  // تاريخ الانتهاء 
+//   string bankName;        // اسم البنك 
+//   double balance;         // الرصيد هيبقى قيمة عشوائية من اول 0 لغاية 1000
+//};
+//
+//struct User {
+//   int id;                      // المعرف الفريد للمستخدم 
+//   string userName;             // اسم المستخدم 
+//   string password;             // كلمة المرور 
+//   string email;                // البريد الإلكتروني 
+//   string address;              // العنوان 
+//   string phone;                // رقم التليفون
+//   Account userAccounts[3];     // كل مستخدم ليه بحد اقصي 3 حسابات
+//   int accountsCount = 0;           // عدد الحسابات المضافة فعلياً
+//};
+//const int numUsers = 10;
+//User users[numUsers];
+//Transaction transactions[numUsers];
+//int userCount = 0;
+//int transactionCount = 0;
+//int currentUserIndex = -1;
+//void login();
+//void signIn();
+//void mainWindow();
+//void transfer();
+//void checkBalance();
+//void addNewAccount();
+//void checkTransactions();
+//void saveToFile();
+//void loadFromFile();
+//void userInfo();
+//void donate();
+////task member 1
+//void signIn() {
+//   string confirmPassword;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  SIGN IN\n";
+//   cout << "\t\t\t\t============================================\n";
+//   
+////2- اليوزر هيكتب الايميل بتاعو 
+//   cout << "Enter your Email : ";
+//   cin >> users[userCount].email;
+////3- اليوزر هيسجل رقم الفون بتاعو
+//   cout << "Enter Phone number : ";
+//   cin >> users[userCount].phone;
+////4- اليوزر هيكتب العنوان بتاعو 
+//   cout << "Enter your address : ";
+//   getline(cin >> ws, users[userCount].address);
+////5- اليوزر هيكتب ال username 
+//   cout << "Enter your username : ";
+//   getline(cin >> ws, users[userCount].userName);
+////6- اليوزر هيعمل الباسوورد بتاعو
+//   cout << "Enter a new password : ";
+//   cin >> users[userCount].password;
+//
+////7- هتعمل كونفيرم للباسوورد ولو الكونفيرم باسوورد مش نفس الباسوورد هتطلع رسالة بتقول ان الكونفيرم باسوورد not match
+//   
+//   do
+//   {
+//   cout << "Confirm Password : ";
+//   cin >> confirmPassword;
+//   if (confirmPassword != users[userCount].password)
+//   {
+//       cout << "Error!\n";
+//       
+//   }
+//   
+//
+//   } while (confirmPassword != users[userCount].password);
+//   userCount++;
+//   cout << "----------------------------------------------------------------------------------------------------------------------\n";
+//   login();
+//   
+//};
+//void login() {
+//   string phoneNum;
+//   string pass;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  LOGIN\n";
+//   cout << "\t\t\t\t============================================\n";
+//   //1- اليوزر هيسجل رقم التليفون بتاعو
+//   cout << "Enter your phone number : ";
+//   cin >> phoneNum;
+//   //2- اليوزر هيكتب كلمة السر بتاعتو
+//   cout << "Enter your password : ";
+//   cin >> pass;
+//   //لو في حاجة غلط سواء رقم التليفون مش موجود قبل كده اصلا او كلمة السر غلط
+//   bool found = false;
+//   for (int i = 0; i < userCount; i++)
+//   {
+//       if (phoneNum == users[i].phone && pass == users[i].password) {
+//           found = true;
+//           currentUserIndex = i;
+//           break;
+//
+//       }
+//   }
+//   if (found)
+//   {
+//       cout << "login successfully." << endl;
+//       cout << "-----------------------------------------------------------------------------------------------------------------\n";
+//       mainWindow();
+//   }
+//   else
+//   {
+//       cout << "The phone number or password is incorrect!" << endl;
+//       cout << "-----------------------------------------------------------------------------------------------------------------\n";
+//       signIn();
+//   }
+//   // هتعرض رسالة تعرفو ان في حاجة غلط 
+//   
+//};
+//
+//
+////task member 2
+//void mainWindow() {
+//   int choise;
+//   cout << "\t\t\t\t============================================\n";
+//   cout << "\t\t\t\t                  MAIN WINDOW\n";
+//   cout << "\t\t\t\t============================================\n";
+//   if (currentUserIndex == -1)
+//   {
+//       cout << "No accounts has sign in." << endl;
+//   }
+//   
+//   else
+//   {
+//       cout << "[1] Check Balance" << endl;
+//       cout << "[2] add new Account" << endl;
+//       cout << "[3] Transfer\n";
+//       cout << "[4] Transactions\n";
+//       cout << "[5] Info\n";
+//       cout << "[6] donate\n";
+//       cout << "Enter your choise from (1-6) : ";
+//       cin >> choise;
+//   }
+//   
+//   // دي الصفحة الرئيسية اللي هتعرضلو فيها كل حاجة ممكن هو يختارها
+//   // زي مثلا (i.e. Check Balance, add new Account, Transfer, etc.)
+//};
+//
+//
+//
+//
+////task member 3
+//
+//void transfer() {
+//    if (currentUserIndex == -1) // check to see if the user exists
+//    {
+//        cout << "You need to login first. \n";
+//        return;
+//    }
+//
+//    int senderAccount; // the sender's account
+//    string receiverNum; // the phone number of the user receiving the amount
+//    double transferAmount; // money 
+//    int receiverUserIndex = -1, receiverAccIndex = -1; // index of the receiver
+//
+//    cout << "Choose an account for this transaction: \n"; // which account do u want to transfer from
+//
+//    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
+//        cout << "[" << i + 1 << "] "
+//            << users[currentUserIndex].userAccounts[i].cardNo << " || "
+//            << users[currentUserIndex].userAccounts[i].bankName << endl
+//            << "Balance: "
+//            << users[currentUserIndex].userAccounts[i].balance << endl;
+//    }
+//
+//    cin >> senderAccount;
+//
+//    if (senderAccount < 1 || senderAccount > users[currentUserIndex].accountsCount) // check if user is entering an account that isn't registered. or larger than accountsCount
+//        cout << "Invalid account choice. \n";
+//
+//    // receiver's phone number choice
+//    cout << "Enter the receiver's phone number: ";
+//    cin >> receiverNum;
+//
+//    for (int i = 0; i < userCount; i++) { // try to find the receiver 
+//        if (users[i].phone == receiverNum) {
+//            receiverUserIndex = i;
+//            break;
+//        }
+//    }
+//
+//    // errors to show if there are no receivers. or the receiver doesnt have an acc
+//    if (receiverUserIndex == -1)
+//        cout << "Can't find receiver. \n";
+//
+//
+//    if (users[currentUserIndex].accountsCount == 0) {
+//        cout << "This user doesn't have a bank account.";
+//        return;
+//    }
+//
+//    // choose receiver account
+//    cout << "Choose the receiver's account: \n";
+//
+//    for (int i = 0; i < users[receiverUserIndex].accountsCount; i++) {
+//        cout << "[" << i + 1 << "]"
+//            << users[receiverUserIndex].userAccounts[i].bankName << endl;
+//    }
+//
+//    cin >> receiverAccIndex;
+//
+//    if (receiverAccIndex < 1 || receiverAccIndex > users[receiverUserIndex].accountsCount) {
+//        cout << "Invalid receiver account. \n";
+//        return;
+//    }
+//
+//    // transfer process
+//    cout << "Enter amount to send: \n";
+//    cin >> transferAmount;
+//
+//    if (transferAmount <= 0) {
+//        cout << "Invalid amount. \n";
+//        return;
+//    }
+//
+//    if (users[currentUserIndex].userAccounts[senderAccount].balance < transferAmount) {
+//        cout << "Insufficient balance. \n";
+//        return;
+//    }
+//
+//    users[currentUserIndex].userAccounts[senderAccount].balance -= transferAmount;
+//
+//    users[receiverUserIndex].userAccounts[receiverAccIndex].balance += transferAmount;
+//
+//    cout << "Transaction was successful. \n";
+//
+//    // log the transfer
+//
+//    transactions[transactionCount].fromPhone = users[currentUserIndex].phone;
+//    transactions[transactionCount].toPhone = users[receiverUserIndex].phone;
+//    transactionCount++;
+//}
+//void checkBalance() {
+//    // errors
+//    if (currentUserIndex == -1) {
+//        cout << "You need to login first. \n";
+//        return;
+//    }
+//
+//    if (users[currentUserIndex].accountsCount == 0) {
+//        cout << "No bank accounts found. \n";
+//        return;
+//    }
+//
+//    // choose which account to check
+//    cout << "Your bank accounts: \n";
+//
+//    for (int i = 0; i < users[currentUserIndex].accountsCount; i++) {
+//        cout << "[" << i + 1 << "] "
+//            << users[currentUserIndex].userAccounts[i].cardNo << " || "
+//            << users[currentUserIndex].userAccounts[i].bankName << endl;
+//    }
+//
+//    int choice;
+//    cout << "Choose account number: ";
+//    cin >> choice;
+//    choice--;
+//
+//    // invalid choice error
+//    if (choice < 0 || choice >= users[currentUserIndex].accountsCount) {
+//        cout << "Invalid choice. \n";
+//        return;
+//    }
+//
+//    // check balance 
+//    cout << "Your balance is: " << users[currentUserIndex].userAccounts[choice].balance << endl;
+//}
+//
+//// task member 4
+//void addNewAccount() {
+//   // إضافة حساب بنكي جديد للمستخدم الحالي 
+//   // يعني المستخدم ممكن يضيف حساب جديد بنفس رقم التليفون
+//   //The cardNo, HolderName, CVV_Code, expireation Date and BankName are added manually by the user, the balance is set to random value starting from 1000.
+//}
+//
+//void checkTransactions() {
+//   // عرض العمليات التي تخص المستخدم الحالي فقط 
+//}
+//
+//
+//// task member 5
+//void saveToFile() {
+//   // حفظ كل المصفوفات في ملفات .txt 
+//}
+//
+//void loadFromFile() {
+//   // تحميل البيانات من الملفات للمصفوفات عند التشغيل 
+//}
+//
+//// task member 6
+//void userInfo() {
+//   // هتعرض كل المعلومات اللي تخص اليوزر
+//}
+//
+//void donate() {
+//
+//}
+//=======
+//>>>>>>> Stashed changes
+//int main() {
+//    system("pause");
+//}
+//
+//// #include<iostream>
+//// #include"FilesLayer.h"
+//// #include"Services.h"
+//
+//// using namespace Print;
+//// using namespace std;
+//// using namespace File;
+//
+//// struct Transaction {
+////     string FromPhone;    // رقم هاتف المرسل 
+////     string ToPhone;      // رقم هاتف المستقبل 
+////     double Amount;       // المبلغ المحول 
+//// };
+//
+//// struct Account {
+////     string CardNo;          // رقم الكارت 
+////     string HolderName;      // اسم صاحب الحساب 
+////     int CvvCode;            // كود الـ CVV 
+////     string ExpirationDate;  // تاريخ الانتهاء 
+////     string BankName;        // اسم البنك 
+////     double Balance;         // الرصيد هيبقى قيمة عشوائية من اول 0 لغاية 1000
+//// };
+//
+//// struct User {
+////     int Id;                      // المعرف الفريد للمستخدم 
+////     string UserName;             // اسم المستخدم 
+////     string Password;             // كلمة المرور 
+////     string Email;                // البريد الإلكتروني 
+////     string Address;              // العنوان 
+////     string Phone;                // رقم التليفون
+////     Account UserAccounts[3];     // كل مستخدم ليه بحد اقصي 3 حسابات
+////     int AccountsCount = 0;           // عدد الحسابات المضافة فعلياً
+//// };
+//// const int NumUsers = 10;
+//// User Users[NumUsers];
+//// Transaction transactions[NumUsers];
+//// int UserCount = 0;
+//// int TransactionCount = 0;
+//// int TurrentUserIndex = -1;
+//// void Login();
+//// void SignIn();
+//// void MainWindow();
+//// void Transfer();
+//// void CheckBalance();
+//// void AddNewAccount();
+//// void CheckTransactions();
+//// void SaveToFile();
+//// void LoadFromFile();
+//// void UserInfo();
+//// void Donate();
+//// //task member 1
+//// void SignIn() {
+//    
+//// };
+//// void Login() {
+//
+//// };
+//
+//
+//// //task member 2
+//// void MainWindow() {
+//
+//// };
+//
+//
+//
+//
+//// //task member 3
+//// void Transfer() {
+//  
+//// }
+//// void CheckBalance() {
+//   
+//// }
+//
+//// // task member 4
+//// void AddNewAccount() {
+//    
+//// }
+//
+//// void CheckTransactions() {
+//    
+//// }
+//
+//
+//// // task member 5
+//// void SaveToFile() {
+//    
+//// }
+//
+//// void LoadFromFile() {
+//    
+//// }
+//
+//// // task member 6
+//// void UserInfo() {
+//    
+//// }
+//
+//// void Donate() {
+//
+//// }
+//// int main() {
+//    
+//// }
+//
 

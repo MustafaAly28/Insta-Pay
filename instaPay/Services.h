@@ -2,7 +2,15 @@
 #include<iostream>
 #include<string>
 #include"DataLayer.h"
+#include"FilesLayer.h"
 using namespace std;
+
+
+
+
+
+// This Code For Test My Features (From: Yousef Ehab)
+
 
 namespace Login
 {
@@ -61,7 +69,11 @@ namespace Login
 			User.Password = ReadPassword();
 
 			if (LogInUser(Users, User))
+			{
 				cout << "Done Log In \n";
+				return;
+			}
+				
 
 			cout << "\n===============================================\n";
 			cout << "\nInValid Data, UserName Or Password Is Not Right \n";
@@ -75,24 +87,24 @@ namespace Login
 
 namespace Print
 {
-	void PrintData(const StUser& User)
+	void PrintDataUser(const StUser& User)
 	{
 		cout << "\n_______________________________________________________________________________\n";
 		cout << "Address Data Of Client : \n";
 		cout << "-----------------------\n";
-		cout << "Street Address : " << User.AdressUser.Street << endl;
-		cout << "City Name      : " << User.AdressUser.City << endl;
-		cout << "Home Number    : " << User.AdressUser.HomeNumber << endl;
+		cout << "Street Address : " << User.Address.Street << endl;
+		cout << "City Name      : " << User.Address.City << endl;
+		cout << "Home Number    : " << User.Address.HomeNumber << endl;
 
 		cout << "=======================\n";
 
 		cout << "Account Data Of Client \n";
 		cout << "-----------------------\n";
-		cout << "Bank Name   : " << User.AccountUser.BankName << endl;
-		cout << "Card Number : " << User.AccountUser.CardNumber << endl;
-		cout << "CVV Code    : " << User.AccountUser.CVVCode << endl;
-		cout << "Holder Name : " << User.AccountUser.HolderName << endl;
-		cout << "Expiration Date : " << User.AccountUser.ExpirationDate << endl;
+		cout << "Bank Name   : " << User.Account.BankName << endl;
+		cout << "Card Number : " << User.Account.CardNumber << endl;
+		cout << "CVV Code    : " << User.Account.CVVCode << endl;
+		cout << "Holder Name : " << User.Account.HolderName << endl;
+		cout << "Expiration Date : " << User.Account.ExpirationDate << endl;
 
 		cout << "=======================\n";
 
@@ -106,5 +118,50 @@ namespace Print
 
 		cout << "=======================\n";
 		cout << "\n_______________________________________________________________________________\n";
+	}
+
+	void PrintDataTransaction(const StTransactions& TransactionHistory)
+	{
+		cout << "\n __________________________________________________________________ \n";
+		cout << "FROM    :- " << TransactionHistory.PhoneNumber_From << endl;
+		cout << "TO      :- " << TransactionHistory.PhoneNumber_To<< endl;
+		cout << "Date    :- " << TransactionHistory.Date << endl;
+		cout << "Amount  :- " << TransactionHistory.Amount << endl;
+		cout << "\n __________________________________________________________________ \n";
+	}
+}
+
+namespace TransactionService
+{
+	int GetUserIndexByPhoneNumber(const string& Phone)
+	{
+		for (int i = 0; i < AddingUsersCounter; i++)
+		{
+			if (Users[i].Phone == Phone)
+				return i;
+		}
+		return - 1;
+	}
+
+	void Transfer()
+	{
+		StTransactions Transaction;
+
+		cout << "enter The phone number : From :- ";
+		getline(cin >> ws, Transaction.PhoneNumber_From); // 01012345678 (Now Balance = 14500.750000$) Ahmed Ali
+
+		cout << "Enter The Phone Number (To) :- ";
+		getline(cin >> ws, Transaction.PhoneNumber_To); // 01123456789 (Now Balance = 8,700 $) Sara 
+
+		cout << "Enter The Balance To Transafer To : " << Transaction.PhoneNumber_To << " : ";
+		cin >> Transaction.Amount; // 100
+
+		int IndexFrom = GetUserIndexByPhoneNumber(Transaction.PhoneNumber_From);
+		int IndexTo = GetUserIndexByPhoneNumber(Transaction.PhoneNumber_To);
+
+		Users[IndexFrom].Account.Balance -= Transaction.Amount;
+		Users[IndexTo].Account.Balance += Transaction.Amount;
+
+		File::Access_AddTransactionHistoryToFile(Transaction);
 	}
 }
